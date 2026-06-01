@@ -23,7 +23,7 @@ jobs:
 
       - name: Run pulse publisher
         env:
-          ANTHROPIC_API_KEY:            ${{ secrets.ANTHROPIC_API_KEY }}
-          GOOGLE_SERVICE_ACCOUNT_JSON:  ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
-          PULSE_FOLDER_ID:              ${{ secrets.PULSE_FOLDER_ID }}
+          ANTHROPIC_API_KEY:           ${{ secrets.ANTHROPIC_API_KEY }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          PULSE_FOLDER_ID:             1uy9AM5IvGzh2cLhhv2b-oxXI5ECqU51B
         run: node pulse-publisher.js
