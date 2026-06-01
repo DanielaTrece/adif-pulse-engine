@@ -1,0 +1,13 @@
+{
+  "name": "adif-pulse-engine",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "publish": "node pulse-publisher.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.90.0",
+    "dotenv": "^17.4.2",
+    "googleapis": "^144.0.0"
+  }
+}
