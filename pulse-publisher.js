@@ -30,7 +30,7 @@ const authConfig = process.env.GOOGLE_SERVICE_ACCOUNT_JSON
 const auth = new google.auth.GoogleAuth(authConfig);
 const drive = google.drive({ version: "v3", auth });
 
-const PULSE_FOLDER_ID = process.env.PULSE_FOLDER_ID;
+const PULSE_FOLDER_ID = (process.env.PULSE_FOLDER_ID || '').trim();
 const LATEST_NAME = "ADIF_Pulse_latest.json";
 
 const today = new Date();
