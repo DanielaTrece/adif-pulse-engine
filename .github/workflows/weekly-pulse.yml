@@ -24,7 +24,7 @@ jobs:
       - name: Write service account key
         env:
           SA_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
-        run: printf '%s' "$SA_JSON" | base64 -d > service-account.json
+        run: printf '%s' "$SA_JSON" > service-account.json
 
       - name: Run pulse publisher
         env:
