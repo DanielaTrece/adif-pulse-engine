@@ -59,14 +59,24 @@ async function runAgent(role, instructions) {
 
 function extractJSON(text) {
   let t = (text || "").replace(/```json/gi, "").replace(/```/g, "").trim();
-  const s = t.indexOf("["), e = t.lastIndexOf("]");
-  if (s !== -1 && e !== -1) t = t.slice(s, e + 1);
-  // repair trailing commas before } or ]
-  t = t.replace(/,(\s*[}\]])/g, "$1");
+  // bracket-match to extract only the first complete array (model sometimes returns two)
+  const start = t.indexOf("[");
+  if (start !== -1) {
+    let depth = 0, inStr = false, esc = false;
+    for (let i = start; i < t.length; i++) {
+      const ch = t[i];
+      if (esc)            { esc = false; continue; }
+      if (ch === "\\" && inStr) { esc = true; continue; }
+      if (ch === '"')     { inStr = !inStr; continue; }
+      if (inStr)          continue;
+      if (ch === "[")     depth++;
+      if (ch === "]" && --depth === 0) { t = t.slice(start, i + 1); break; }
+    }
+  }
+  t = t.replace(/,(\s*[}\]])/g, "$1"); // repair trailing commas
   try {
     return JSON.parse(t);
   } catch (err) {
-    // log the region around the error for diagnosis
     const pos = parseInt((err.message.match(/position (\d+)/) || [])[1]) || 0;
     console.error("  JSON parse error near:", JSON.stringify(t.slice(Math.max(0, pos - 60), pos + 60)));
     throw err;
