@@ -22,7 +22,9 @@ jobs:
       - run: npm install
 
       - name: Write service account key
-        run: echo "${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}" | base64 -d > service-account.json
+        env:
+          SA_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: printf '%s' "$SA_JSON" | base64 -d > service-account.json
 
       - name: Run pulse publisher
         env:
