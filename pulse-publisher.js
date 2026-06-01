@@ -24,10 +24,10 @@ import { google } from "googleapis";
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const MODEL = "claude-sonnet-4-6";
 
-const auth = new google.auth.GoogleAuth({
-  keyFile: process.env.GOOGLE_SERVICE_ACCOUNT_KEY || "./service-account.json",
-  scopes: ["https://www.googleapis.com/auth/drive"],
-});
+const authConfig = process.env.GOOGLE_SERVICE_ACCOUNT_JSON
+  ? { credentials: JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON), scopes: ["https://www.googleapis.com/auth/drive"] }
+  : { keyFile: process.env.GOOGLE_SERVICE_ACCOUNT_KEY || "./service-account.json", scopes: ["https://www.googleapis.com/auth/drive"] };
+const auth = new google.auth.GoogleAuth(authConfig);
 const drive = google.drive({ version: "v3", auth });
 
 const PULSE_FOLDER_ID = process.env.PULSE_FOLDER_ID;
