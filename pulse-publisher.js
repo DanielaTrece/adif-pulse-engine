@@ -43,11 +43,11 @@ const weekStart = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
 const WINDOW = `${fmt(weekStart)} → ${fmt(today)}`; // the only 7 days that count
 
 // ── agent runner ───────────────────────────────────────────────────────────
-async function runAgent(role, instructions) {
+async function runAgent(role, instructions, { maxSearches = 6 } = {}) {
   const res = await anthropic.messages.create({
     model: MODEL,
-    max_tokens: 3000,
-    tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 6 }],
+    max_tokens: 4000,
+    tools: [{ type: "web_search_20250305", name: "web_search", max_uses: maxSearches }],
     messages: [{ role: "user", content: `${role}\n\n${instructions}` }],
   });
   const text = res.content
@@ -124,27 +124,34 @@ ${ITEM_SPEC}`
 
 const layer2 = () =>
   runAgent(
-    "ROLE: Research & Trends + Brand Guardian for A Diamond Is Forever. Natural-diamond-positive lens.",
-    `Today is ${weekLabel}. Find the TOP 4-5 diamond and jewelry moments making noise right now — cast a wide net across celebrity culture, sport, music, film, weddings, and social media. Return 4 or 5 items so we have plenty to work with; do not stop at 3.
+    "ROLE: Celebrity & culture diamond correspondent. You scan entertainment news, tabloids, sports coverage and social media to find the hottest diamond and jewelry moments happening RIGHT NOW.",
+    `Today is ${weekLabel}. You have 12 web searches — use ALL of them. Your job is to find 4-5 fresh, hot diamond and jewelry moments from the last 10 days. Think celebrity gossip editor, not jewelry trade journalist.
 
-RECENCY WINDOW: catalyst within the last 45 days. Ongoing events (a tournament in progress, a celebrity still in the news) are fully eligible.
+STEP 1 — RUN THESE SEARCHES IN ORDER (use your searches here):
+1. "Dua Lipa wedding diamonds jewelry 2026"
+2. "Sabalenka diamonds Roland Garros 2026"
+3. "Cannes Film Festival 2026 diamonds jewelry"
+4. "celebrity diamonds June 2026"
+5. "celebrity engagement ring June 2026"
+6. "celebrity wedding jewelry June 2026"
+7. "diamonds red carpet May June 2026"
+8. "diamond jewelry viral TikTok Instagram June 2026"
+9. "natural diamond celebrity 2026"
+10. Search any hot celebrity name from your results + "diamonds"
 
-WHAT TO LOOK FOR — search all of these angles and return the best hits:
-- Any celebrity, athlete, musician, or public figure spotted wearing notable diamonds recently: red carpet, court-side, paparazzi street style, TV appearance, social media post. Include engagement rings, wedding jewellery, everyday stacking, statement pieces.
-- Major events in the last 45 days where diamond/jewelry moments happened: Roland Garros, Cannes Film Festival, Met Gala aftermath, BAFTAs, any awards show, celebrity weddings, fashion weeks.
-- Viral social moments: a diamond look that blew up on TikTok or Instagram, a creator or jeweller going viral, a style (cut, colour, setting) suddenly everywhere.
-- The natural vs lab-grown conversation if there is a fresh spike — a celebrity comment, a publication piece, a brand statement that triggered debate.
-- A brand moment ONLY if consumers outside the trade are talking about it.
-
-SEARCH QUERIES TO RUN:
-"celebrity diamonds May June 2026", "Cannes 2026 jewelry diamonds", "Roland Garros 2026 diamonds jewelry", "Sabalenka diamonds", "Dua Lipa wedding diamonds", "[celebrity] engagement ring 2026", "diamond jewelry red carpet 2026", "natural diamonds trending 2026", "diamond necklace viral TikTok 2026"
+STEP 2 — FROM YOUR SEARCH RESULTS, pick the 4-5 hottest items where:
+- A real named celebrity, athlete, or public figure wore or talked about diamonds at a specific dated event in the last 10 days
+- OR a diamond/jewelry moment went viral on social media in the last 10 days
+- OR a celebrity's engagement, wedding or anniversary involved notable diamond jewelry in the last 10 days
 
 HARD RULES:
-- Return 4 or 5 items — never fewer than 4.
-- Rank by cultural heat and how widely people are talking, not by industry importance.
-- Celebrity wearing diamonds > brand press release, every time.
-- Do NOT apply the strict 7-day rule from Layer 1. Your window is 45 days.
-${ITEM_SPEC}`
+- The catalystDate MUST be within the last 10 days (on or after ${fmt(new Date(today.getTime() - 10 * 24 * 60 * 60 * 1000))}).
+- No corporate press releases. No brand launches. No industry reports.
+- If you find Dua Lipa wearing diamonds at her wedding — that is a slot 1 item. If you find Sabalenka in diamonds at Roland Garros — slot 1 item.
+- Every item must name a real person and a real event with a real date.
+- Return 4-5 items. Do not stop at 3.
+${ITEM_SPEC}`,
+    { maxSearches: 12 }
   );
 
 // ── Drive write ──────────────────────────────────────────────────────────────
@@ -205,10 +212,10 @@ async function publish() {
   console.log("Running pulse agents…");
   let [l1, l2] = await Promise.all([layer1(), layer2()]);
 
-  // Layer 1 = breaking social: strict 10-day window. Layer 2 = jewelry/culture: 45-day window.
+  // Layer 1 = breaking social trends: 10-day window. Layer 2 = celebrity/jewelry: 10-day window.
   const byHeat = (a, b) => (b.heat || 0) - (a.heat || 0);
   l1 = enforceRecency(l1, 10, "layer1").sort(byHeat).slice(0, 5);
-  l2 = enforceRecency(l2, 45, "layer2").sort(byHeat).slice(0, 3); // top 3, hard cap
+  l2 = enforceRecency(l2, 10, "layer2").sort(byHeat).slice(0, 3); // top 3, hard cap
 
   if (l1.length === 0) console.log("  ⚠  Layer 1 empty after filtering — genuinely quiet week, or sources too thin.");
 
