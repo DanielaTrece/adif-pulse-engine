@@ -125,8 +125,19 @@ ${ITEM_SPEC}`
 const layer2 = () =>
   runAgent(
     "ROLE: Research & Trends + Brand Guardian for A Diamond Is Forever. Natural-diamond-positive lens.",
-    `Today is ${weekLabel}. Surface the TOP 3 trending news stories in the world of jewelry and diamonds right now — what's genuinely making noise in the category: industry and business moves (acquisitions, launches, collabs), notable celebrity or cultural diamond moments, and major shifts in the natural-vs-lab-grown conversation or the market. Rank by how much each is actually trending and return the 3 biggest; return fewer only if fewer than 3 genuinely qualify.
-The selection driver is "what's the trending news," not aesthetics. The four hero pieces (studs, tennis bracelets, eternity bands, halo pendants) and jeweler-creators (Olivia Landau / The Clear Cut, Stephanie Gottlieb) are useful context, not the filter. Keep it on-brief and natural-diamond-positive.
+    `Today is ${weekLabel}. Find the TOP 3 diamond and jewelry moments genuinely trending RIGHT NOW — ranked strictly by social buzz, search volume, and how much people are actually talking about it online this week.
+
+PRIORITY ORDER — search in this exact order and fill slots top-down:
+1. CELEBRITY & CULTURAL DIAMOND MOMENTS — a celebrity spotted wearing diamonds at a high-profile event (red carpet, wedding, sports match, performance, paparazzi), a famous person's engagement or wedding ring making news, a viral social moment involving diamonds or fine jewelry. Search: "[celebrity] diamonds", "tennis diamonds this week", "[award show / event name] jewelry", "[celebrity] engagement ring", "[celebrity] wedding diamonds".
+2. VIRAL CULTURAL CONVERSATION — natural vs lab-grown debate flaring up on social, a jeweler or creator going viral, a diamond trend breaking on TikTok or Instagram (e.g. a specific cut, colour or style suddenly everywhere).
+3. INDUSTRY NEWS ONLY AS A LAST RESORT — only include an acquisition, launch, or brand collab if it is genuinely creating consumer-facing buzz this week (i.e. people outside the trade are talking about it). A press release no one shared is NOT a trend.
+
+HARD RULES:
+- Do NOT lead with corporate announcements, trade news, or B2B reports. Those are not trends.
+- A celebrity diamond moment at a live event this week ALWAYS outranks a brand launch.
+- Search entertainment news, tabloids, sports coverage, and social media — not just jewelry trade press.
+- Apply the recency rule: the catalyst must be THIS week. Roland Garros, Cannes, a recent wedding, a recent awards show are valid hooks IF something diamond-related happened at them this week.
+${RECENCY}
 ${ITEM_SPEC}`
   );
 
