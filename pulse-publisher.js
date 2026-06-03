@@ -176,10 +176,15 @@ async function writeJSON(name, fileId, content) {
 
 // ── code-side recency guard (don't trust the model's self-assessment) ─────────
 // Drops items that are stale/undated OR whose wording admits they're backdrop.
-const BACKDROP_TELLS = ["still ", "re-explod", "continues", "sustained", "ongoing", "remains", "dominates", "long-running", "evergreen", "kicks off", "will kick"];
-function looksLikeBackdrop(it) {
+// Layer 1 (social trends): strict — "ongoing", "continues", "dominates" are all red flags.
+// Layer 2 (jewelry/culture): looser — live tournaments, active red carpets and ongoing
+//   celebrity moments are valid; only catch clear evergreen/future/faded-trend language.
+const BACKDROP_TELLS_L1 = ["still ", "re-explod", "continues", "sustained", "ongoing", "remains", "dominates", "long-running", "evergreen", "kicks off", "will kick"];
+const BACKDROP_TELLS_L2 = ["still peaking", "still climbing", "re-explod", "sustained popularity", "long-running", "evergreen", "kicks off next", "will kick", "has been popular"];
+function looksLikeBackdrop(it, label) {
+  const tells = label === "layer2" ? BACKDROP_TELLS_L2 : BACKDROP_TELLS_L1;
   const s = ((it.trend || "") + " " + (it.signal || "")).toLowerCase();
-  return BACKDROP_TELLS.find((p) => s.includes(p)) || null;
+  return tells.find((p) => s.includes(p)) || null;
 }
 function enforceRecency(items, maxDays, label) {
   const cutoff = today.getTime() - maxDays * 24 * 60 * 60 * 1000;
@@ -187,7 +192,7 @@ function enforceRecency(items, maxDays, label) {
   for (const it of items || []) {
     const d = Date.parse(it.catalystDate);
     const stale = isNaN(d) || d < cutoff;
-    const tell = looksLikeBackdrop(it);
+    const tell = looksLikeBackdrop(it, label);
     if (!stale && !tell) kept.push(it);
     else console.log(`  dropped (${label}, ${stale ? "stale/undated" : "backdrop:'" + tell + "'"}): "${it.trend}" [${it.catalystDate || "no date"}]`);
   }
