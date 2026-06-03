@@ -125,19 +125,25 @@ ${ITEM_SPEC}`
 const layer2 = () =>
   runAgent(
     "ROLE: Research & Trends + Brand Guardian for A Diamond Is Forever. Natural-diamond-positive lens.",
-    `Today is ${weekLabel}. Find the TOP 3 diamond and jewelry moments genuinely trending RIGHT NOW — ranked strictly by social buzz, search volume, and how much people are actually talking about it online this week.
+    `Today is ${weekLabel}. Find EXACTLY 3 diamond and jewelry moments that are genuinely trending right now — ranked by social buzz, how much people are talking online, and cultural heat. You MUST return 3 items. If a perfect item doesn't exist, return the best available — do not return fewer than 3.
 
-PRIORITY ORDER — search in this exact order and fill slots top-down:
-1. CELEBRITY & CULTURAL DIAMOND MOMENTS — a celebrity spotted wearing diamonds at a high-profile event (red carpet, wedding, sports match, performance, paparazzi), a famous person's engagement or wedding ring making news, a viral social moment involving diamonds or fine jewelry. Search: "[celebrity] diamonds", "tennis diamonds this week", "[award show / event name] jewelry", "[celebrity] engagement ring", "[celebrity] wedding diamonds".
-2. VIRAL CULTURAL CONVERSATION — natural vs lab-grown debate flaring up on social, a jeweler or creator going viral, a diamond trend breaking on TikTok or Instagram (e.g. a specific cut, colour or style suddenly everywhere).
-3. INDUSTRY NEWS ONLY AS A LAST RESORT — only include an acquisition, launch, or brand collab if it is genuinely creating consumer-facing buzz this week (i.e. people outside the trade are talking about it). A press release no one shared is NOT a trend.
+RECENCY WINDOW: items must have a catalyst within the last 30 days. An ongoing event (e.g. a tournament still in progress, a celebrity still making headlines) is eligible as long as diamond-related coverage is active RIGHT NOW.
+
+PRIORITY ORDER — fill all 3 slots, working down this list:
+1. CELEBRITY & CULTURAL DIAMOND MOMENTS — celebrity spotted in diamonds at a live event (red carpet, sports, wedding, performance, street style paparazzi); an engagement or wedding ring going viral; a musician, athlete or actor making diamond news. Search: "[celebrity name] diamonds June 2026", "Roland Garros diamonds", "Cannes diamonds", "[celebrity] engagement ring 2026", "wedding diamonds this week", "tennis player diamonds".
+2. VIRAL CULTURAL CONVERSATION — natural vs lab-grown debate spiking on social; a jeweler or diamond creator going viral on TikTok/Instagram; a specific diamond style (cut, colour, shape) suddenly trending.
+3. NOTABLE BRAND OR CULTURAL MOMENT — a collab, collection launch, or exhibition that consumers (not just trade press) are actually discussing. A press release with zero social pickup does NOT count.
+
+SEARCH GUIDANCE — go beyond jewelry trade press:
+- Search entertainment news, tabloids, sports sites, Twitter/X trending, TikTok hashtags
+- Search "diamonds June 2026", "jewelry [celebrity event] 2026", "diamond engagement ring viral"
+- If a major event happened this month (Roland Garros, Cannes Film Festival, a celebrity wedding), search it specifically for diamond/jewelry coverage
 
 HARD RULES:
-- Do NOT lead with corporate announcements, trade news, or B2B reports. Those are not trends.
-- A celebrity diamond moment at a live event this week ALWAYS outranks a brand launch.
-- Search entertainment news, tabloids, sports coverage, and social media — not just jewelry trade press.
-- Apply the recency rule: the catalyst must be THIS week. Roland Garros, Cannes, a recent wedding, a recent awards show are valid hooks IF something diamond-related happened at them this week.
-${RECENCY}
+- Return exactly 3 items — no more, no fewer.
+- Corporate press releases with no consumer buzz belong in slot 3 only, never slots 1 or 2.
+- A celebrity diamond moment ALWAYS outranks a brand launch.
+- Do NOT use the strict 7-day WINDOW from Layer 1 — your window is 30 days.
 ${ITEM_SPEC}`
   );
 
