@@ -77,9 +77,19 @@ function extractJSON(text) {
   try {
     return JSON.parse(t);
   } catch (err) {
-    const pos = parseInt((err.message.match(/position (\d+)/) || [])[1]) || 0;
-    console.error("  JSON parse error near:", JSON.stringify(t.slice(Math.max(0, pos - 60), pos + 60)));
-    throw err;
+    // Repair unescaped double-quotes inside JSON string values (e.g. "title "Foo" bar")
+    // Strategy: inside each string value, replace bare " with '
+    const repaired = t.replace(/"([^"\\]*(?:\\.[^"\\]*)*)"/g, (match, inner) => {
+      // re-escape any unescaped quotes inside the captured value
+      return '"' + inner.replace(/(?<!\\)"/g, "'") + '"';
+    });
+    try {
+      return JSON.parse(repaired);
+    } catch (err2) {
+      const pos = parseInt((err.message.match(/position (\d+)/) || [])[1]) || 0;
+      console.error("  JSON parse error near:", JSON.stringify(t.slice(Math.max(0, pos - 60), pos + 60)));
+      throw err;
+    }
   }
 }
 
