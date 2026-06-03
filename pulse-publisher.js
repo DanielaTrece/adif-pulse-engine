@@ -125,25 +125,25 @@ ${ITEM_SPEC}`
 const layer2 = () =>
   runAgent(
     "ROLE: Research & Trends + Brand Guardian for A Diamond Is Forever. Natural-diamond-positive lens.",
-    `Today is ${weekLabel}. Find EXACTLY 3 diamond and jewelry moments that are genuinely trending right now — ranked by social buzz, how much people are talking online, and cultural heat. You MUST return 3 items. If a perfect item doesn't exist, return the best available — do not return fewer than 3.
+    `Today is ${weekLabel}. Find the TOP 4-5 diamond and jewelry moments making noise right now — cast a wide net across celebrity culture, sport, music, film, weddings, and social media. Return 4 or 5 items so we have plenty to work with; do not stop at 3.
 
-RECENCY WINDOW: items must have a catalyst within the last 30 days. An ongoing event (e.g. a tournament still in progress, a celebrity still making headlines) is eligible as long as diamond-related coverage is active RIGHT NOW.
+RECENCY WINDOW: catalyst within the last 45 days. Ongoing events (a tournament in progress, a celebrity still in the news) are fully eligible.
 
-PRIORITY ORDER — fill all 3 slots, working down this list:
-1. CELEBRITY & CULTURAL DIAMOND MOMENTS — celebrity spotted in diamonds at a live event (red carpet, sports, wedding, performance, street style paparazzi); an engagement or wedding ring going viral; a musician, athlete or actor making diamond news. Search: "[celebrity name] diamonds June 2026", "Roland Garros diamonds", "Cannes diamonds", "[celebrity] engagement ring 2026", "wedding diamonds this week", "tennis player diamonds".
-2. VIRAL CULTURAL CONVERSATION — natural vs lab-grown debate spiking on social; a jeweler or diamond creator going viral on TikTok/Instagram; a specific diamond style (cut, colour, shape) suddenly trending.
-3. NOTABLE BRAND OR CULTURAL MOMENT — a collab, collection launch, or exhibition that consumers (not just trade press) are actually discussing. A press release with zero social pickup does NOT count.
+WHAT TO LOOK FOR — search all of these angles and return the best hits:
+- Any celebrity, athlete, musician, or public figure spotted wearing notable diamonds recently: red carpet, court-side, paparazzi street style, TV appearance, social media post. Include engagement rings, wedding jewellery, everyday stacking, statement pieces.
+- Major events in the last 45 days where diamond/jewelry moments happened: Roland Garros, Cannes Film Festival, Met Gala aftermath, BAFTAs, any awards show, celebrity weddings, fashion weeks.
+- Viral social moments: a diamond look that blew up on TikTok or Instagram, a creator or jeweller going viral, a style (cut, colour, setting) suddenly everywhere.
+- The natural vs lab-grown conversation if there is a fresh spike — a celebrity comment, a publication piece, a brand statement that triggered debate.
+- A brand moment ONLY if consumers outside the trade are talking about it.
 
-SEARCH GUIDANCE — go beyond jewelry trade press:
-- Search entertainment news, tabloids, sports sites, Twitter/X trending, TikTok hashtags
-- Search "diamonds June 2026", "jewelry [celebrity event] 2026", "diamond engagement ring viral"
-- If a major event happened this month (Roland Garros, Cannes Film Festival, a celebrity wedding), search it specifically for diamond/jewelry coverage
+SEARCH QUERIES TO RUN:
+"celebrity diamonds May June 2026", "Cannes 2026 jewelry diamonds", "Roland Garros 2026 diamonds jewelry", "Sabalenka diamonds", "Dua Lipa wedding diamonds", "[celebrity] engagement ring 2026", "diamond jewelry red carpet 2026", "natural diamonds trending 2026", "diamond necklace viral TikTok 2026"
 
 HARD RULES:
-- Return exactly 3 items — no more, no fewer.
-- Corporate press releases with no consumer buzz belong in slot 3 only, never slots 1 or 2.
-- A celebrity diamond moment ALWAYS outranks a brand launch.
-- Do NOT use the strict 7-day WINDOW from Layer 1 — your window is 30 days.
+- Return 4 or 5 items — never fewer than 4.
+- Rank by cultural heat and how widely people are talking, not by industry importance.
+- Celebrity wearing diamonds > brand press release, every time.
+- Do NOT apply the strict 7-day rule from Layer 1. Your window is 45 days.
 ${ITEM_SPEC}`
   );
 
@@ -205,10 +205,10 @@ async function publish() {
   console.log("Running pulse agents…");
   let [l1, l2] = await Promise.all([layer1(), layer2()]);
 
-  // Layer 1 = breaking social: strict 10-day window. Layer 2 = jewelry news: 30-day window.
+  // Layer 1 = breaking social: strict 10-day window. Layer 2 = jewelry/culture: 45-day window.
   const byHeat = (a, b) => (b.heat || 0) - (a.heat || 0);
   l1 = enforceRecency(l1, 10, "layer1").sort(byHeat).slice(0, 5);
-  l2 = enforceRecency(l2, 30, "layer2").sort(byHeat).slice(0, 3); // top 3 news, hard cap
+  l2 = enforceRecency(l2, 45, "layer2").sort(byHeat).slice(0, 3); // top 3, hard cap
 
   if (l1.length === 0) console.log("  ⚠  Layer 1 empty after filtering — genuinely quiet week, or sources too thin.");
 
