@@ -132,37 +132,43 @@ ${RECENCY}
 ${ITEM_SPEC}`
   );
 
-const layer2 = () =>
-  runAgent(
+const layer2 = () => {
+  const cutoff7  = fmt(new Date(today.getTime() -  7 * 24 * 60 * 60 * 1000));
+  const cutoff3  = fmt(new Date(today.getTime() -  3 * 24 * 60 * 60 * 1000));
+  return runAgent(
     "ROLE: Celebrity & culture diamond correspondent. You scan entertainment news, tabloids, sports coverage and social media to find the hottest diamond and jewelry moments happening RIGHT NOW.",
-    `Today is ${weekLabel}. You have 12 web searches — use ALL of them. Your job is to find 4-5 fresh, hot diamond and jewelry moments from the last 10 days. Think celebrity gossip editor, not jewelry trade journalist.
+    `Today is ${weekLabel}. You have 12 web searches — use ALL of them. Your job is to find 4-5 fresh, hot diamond and jewelry moments from the LAST 7 DAYS — and PREFER items from the LAST 3 DAYS over older items, even when the older items have more coverage.
 
-STEP 1 — RUN THESE SEARCHES IN ORDER (use your searches here):
-1. "Dua Lipa wedding diamonds jewelry 2026"
-2. "Sabalenka diamonds Roland Garros 2026"
-3. "Cannes Film Festival 2026 diamonds jewelry"
-4. "celebrity diamonds June 2026"
-5. "celebrity engagement ring June 2026"
-6. "celebrity wedding jewelry June 2026"
-7. "diamonds red carpet May June 2026"
-8. "diamond jewelry viral TikTok Instagram June 2026"
-9. "natural diamond celebrity 2026"
-10. Search any hot celebrity name from your results + "diamonds"
+CRITICAL FRESHNESS RULE: A story that broke this WEEKEND outranks a story that broke a WEEK AGO, even if the older story has 10× more articles indexed. Your job is to find what is breaking NOW, not what has the most coverage. Do not default to whichever name has the most search results — default to whatever happened most recently.
 
-STEP 2 — FROM YOUR SEARCH RESULTS, pick the 4-5 hottest items where:
-- A real named celebrity, athlete, or public figure wore or talked about diamonds at a specific dated event in the last 10 days
-- OR a diamond/jewelry moment went viral on social media in the last 10 days
-- OR a celebrity's engagement, wedding or anniversary involved notable diamond jewelry in the last 10 days
+STEP 1 — RUN THESE SEARCHES (replace [DATE] with this week's actual dates):
+1. "celebrity diamonds this week ${weekLabel}"
+2. "celebrity engagement ring this week"
+3. "celebrity wedding diamonds this week"
+4. "red carpet diamonds June 2026"
+5. "diamond jewelry viral last 7 days"
+6. "natural diamond celebrity news"
+7. Search the biggest live cultural event happening RIGHT NOW (search "what major sport / awards / fashion event is happening this week 2026"), then search "[that event] diamonds jewelry"
+8. Search the most-covered celebrity ENGAGEMENT or WEDDING announced THIS WEEK, then add "diamonds"
+9. Search any viral red-carpet moment from the LAST 3 DAYS + "jewelry"
+10. Search tennis / sports / music news from the LAST 3 DAYS for diamond moments
+11. Open queries to fill remaining 12 searches if leads emerge from above
+
+STEP 2 — PICK YOUR 4-5 ITEMS using this priority:
+- Items with a catalyst on or after ${cutoff3} (last 3 days) are preferred over items from ${cutoff7}–${cutoff3}
+- A genuinely NEW development on a story is fine (e.g. a tournament FINAL is a new event even if the tournament started earlier)
+- "More coverage" is NOT a tiebreaker — "more recent" is
 
 HARD RULES:
-- The catalystDate MUST be within the last 10 days (on or after ${fmt(new Date(today.getTime() - 10 * 24 * 60 * 60 * 1000))}).
+- The catalystDate MUST be on or after ${cutoff7}. Items dated before ${cutoff7} are AUTO-REJECTED.
+- Do NOT pick last week's headline story. If a story broke before ${cutoff7}, only include it if there is a genuinely NEW development this week (e.g. a sequel event, a new public statement, a new viral moment) and the signal must LEAD with that new development, not the original event.
 - No corporate press releases. No brand launches. No industry reports.
-- If you find Dua Lipa wearing diamonds at her wedding — that is a slot 1 item. If you find Sabalenka in diamonds at Roland Garros — slot 1 item.
-- Every item must name a real person and a real event with a real date.
+- Every item must name a real person and a real event with a real date within the last 7 days.
 - Return 4-5 items. Do not stop at 3.
 ${ITEM_SPEC}`,
     { maxSearches: 12 }
   );
+};
 
 // ── Drive write ──────────────────────────────────────────────────────────────
 async function findLatestFile() {
@@ -222,10 +228,14 @@ async function publish() {
   console.log("Running pulse agents…");
   let [l1, l2] = await Promise.all([layer1(), layer2()]);
 
-  // Layer 1 = breaking social trends: 10-day window. Layer 2 = celebrity/jewelry: 10-day window.
-  const byHeat = (a, b) => (b.heat || 0) - (a.heat || 0);
-  l1 = enforceRecency(l1, 10, "layer1").sort(byHeat).slice(0, 5);
-  l2 = enforceRecency(l2, 10, "layer2").sort(byHeat).slice(0, 3); // top 3, hard cap
+  // Both layers: 7-day window. Layer 2 sorts by recency THEN heat (freshness wins ties).
+  const byHeat   = (a, b) => (b.heat || 0) - (a.heat || 0);
+  const byRecent = (a, b) => (Date.parse(b.catalystDate) || 0) - (Date.parse(a.catalystDate) || 0);
+  l1 = enforceRecency(l1, 7, "layer1").sort(byHeat).slice(0, 5);
+  // For Layer 2, prefer freshest: sort by date first, then break ties by heat.
+  l2 = enforceRecency(l2, 7, "layer2")
+    .sort((a, b) => byRecent(a, b) || byHeat(a, b))
+    .slice(0, 3);
 
   if (l1.length === 0) console.log("  ⚠  Layer 1 empty after filtering — genuinely quiet week, or sources too thin.");
 
