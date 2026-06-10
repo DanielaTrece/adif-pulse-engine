@@ -210,7 +210,8 @@ function looksLikeBackdrop(it, label) {
   return tells.find((p) => s.includes(p)) || null;
 }
 function enforceRecency(items, maxDays, label) {
-  const cutoff = today.getTime() - maxDays * 24 * 60 * 60 * 1000;
+  // Compare dates only (not timestamps) so items dated exactly at the boundary aren't dropped on timezone.
+  const cutoff = new Date(today.getFullYear(), today.getMonth(), today.getDate() - maxDays).getTime();
   const kept = [];
   for (const it of items || []) {
     const d = Date.parse(it.catalystDate);
